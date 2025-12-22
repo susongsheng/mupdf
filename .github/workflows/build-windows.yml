@@ -38,3 +38,13 @@ jobs:
           REM 编译 MuPDF 库
           msbuild %VS_SOLUTION% /p:Configuration=%BUILD_CONFIG% /p:Platform=x64 /m
         shell: cmd
+        
+      - name: Upload MuPDF build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: mupdf-windows-x64-release
+          path: |
+            platform\win32\x64\Release\*.exe
+            platform\win32\x64\Release\*.lib
+            platform\win32\x64\Release\*.dll
+            platform\win32\x64\Release\*.pdb
