@@ -27,6 +27,8 @@ jobs:
 
       # 3) Setup Visual Studio Build Tools
       # windows-latest Runner 自带 VS 2022+，可直接用 msbuild
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
 
       # 4) Build native MuPDF DLL
       - name: Build MuPDF native DLL
