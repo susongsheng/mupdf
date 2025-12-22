@@ -1,0 +1,38 @@
+name: Build Windows MuPDF
+
+# 只在 push 和 pull_request 时触发
+on:
+  push:
+    branches: [ "1.27.x" ]
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    name: Build Windows DLL and JNI
+    runs-on: windows-latest
+
+    env:
+      # 设置输出目录变量
+      BUILD_CONFIG: "Release"
+      VS_SOLUTION: "platform\\win32\\mupdf.sln"
+
+    steps:
+      # 1) Checkout 源码
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      # 2) Cache thirdparty libraries or tools if需要
+
+      # 3) Setup Visual Studio Build Tools
+      # windows-latest Runner 自带 VS 2022+，可直接用 msbuild
+
+      # 4) Build native MuPDF DLL
+      - name: Build MuPDF native DLL
+        run: |
+          echo "Building MuPDF native..."
+          setlocal enableDelayedExpansion
+          REM 编译 MuPDF 库
+          msbuild %VS_SOLUTION% /p:Configuration=%BUILD_CONFIG% /p:Platform=x64 /m
+        shell: cmd
