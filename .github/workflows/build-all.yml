@@ -137,7 +137,7 @@ jobs:
           echo pwd
           echo $(pwd)
           echo build/shared-release
-          echo $(ll build/shared-release)
+          echo $(ls -l build/shared-release)
           cp build/shared-release/libmupdf.so dist/${{ matrix.arch }}/
 
       - name: Upload Linux artifacts
