@@ -49,8 +49,7 @@ jobs:
           name: mupdf-windows-x64
           # platform/win32/x64/Release/*.lib
           # platform/win32/x64/Release/*.pdb
-          path: |
-            D:/a/mupdf/mupdf/platform/win32/x64/Release/javaviewerlib64.dll
+          path: D:/a/mupdf/mupdf/platform/win32/x64/Release/javaviewerlib64.dll
 
   linux:
     name: Linux (${{ matrix.arch }})
@@ -75,6 +74,8 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y \
             build-essential \
+            git \
+            python3 \
             pkg-config \
             libfreetype6-dev \
             libharfbuzz-dev \
@@ -83,7 +84,14 @@ jobs:
             libjbig2dec0-dev \
             zlib1g-dev \
             gcc-multilib \
-            unzip
+            unzip \
+            python3 \
+            cmake \
+            libx11-dev \
+            libgl-dev \
+            libglu1-mesa-dev \
+            libpng-dev \
+            libcurl4-openssl-dev
 
       # ===== 架构区分 =====
       - name: Set toolchain
@@ -109,6 +117,10 @@ jobs:
 
       - name: Build MuPDF (.so)
         run: |
+          echo pwd
+          echo $(pwd)
+          echo build/shared-release
+          echo $(ls build/shared-release)
           make clean
           make shared \
             CC=${CC} \
@@ -121,7 +133,9 @@ jobs:
       - name: Collect artifacts
         run: |
           mkdir -p dist/${{ matrix.arch }}
+          echo pwd
           echo $(pwd)
+          echo build/shared-release
           echo $(ls build/shared-release)
           cp build/shared-release/libmupdf.so.27.0 dist/${{ matrix.arch }}/
 
