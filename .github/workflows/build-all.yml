@@ -25,12 +25,32 @@ jobs:
 
       - name: Build MuPDF (Windows x64)
         shell: cmd
+        # 编译期
+        # /Ox          # 最大优化
+        # /Gy          # 函数级分段
+        # /GL          # 全程序优化（LTCG 前置）
+        # 链接期
+        # /LTCG
+        # /OPT:REF    # 删除未引用函数
+        # /OPT:ICF    # 合并相同函数
+        # 关闭 RTTI / 异常
+        # /GR-   # RTTI off
+        # /EHs-  # 异常处理 off
+        # DLL 输出优化
+        # /INCREMENTAL:NO
+        # /DEBUG:NONE
         run: |
           msbuild %VS_SOLUTION% ^
-            /p:Configuration=Release ^
-            /p:Platform=x64 ^
-            /m
-          dir .\platform\win32\x64\Release\
+          /target:javaviewerlib
+          /p:Configuration=Release ^
+          /p:Platform=x64 ^
+          /p:CLCompile.AdditionalOptions="/Ox /Gy /GL /GR- /EHs-" ^
+          /p:Link.AdditionalOptions="/LTCG /OPT:REF /OPT:ICF /INCREMENTAL:NO /DEBUG:NONE" ^
+          /p:PreprocessorDefinitions="HAVE_OPENSSL=0;HAVE_XPS=0;HAVE_EPUB=0;HAVE_CBZ=0;HAVE_SVG=0;HAVE_JS=0;HAVE_TESSERACT=0;HAVE_ICC=0" ^
+          /m
+          
+          del platform\win32\x64\Release\*.pdb
+          llvm-strip --strip-unneeded mupdf.dll
 
       #- name: Package Windows artifacts
       #  shell: cmd
@@ -147,10 +167,22 @@ jobs:
           make clean
           make \
             build=release \
+            XCFLAGS="-Os -flto" \
+            XLDFLAGS="-flto" \
             HAVE_X11=no \
             HAVE_GLFW=no \
             HAVE_GLUT=no \
-            HAVE_CURL=no
+            HAVE_CURL=no \
+            HAVE_TESSERACT=no \
+            HAVE_JS=no \
+            HAVE_SVG=no \
+            HAVE_EPUB=no \
+            HAVE_XPS=no \
+            HAVE_CBZ=no \
+            HAVE_IMG=no \
+            HAVE_ICC=no
+
+          strip --strip-unneeded libmupdf.so
 
       - name: Collect artifacts
         run: |
@@ -162,7 +194,7 @@ jobs:
           tar czf dist/${{ matrix.arch }}/mupdf-linux-${{ matrix.arch }}.tar build/
 
       - name: Upload Linux artifacts
-        if: startsWith(github.ref, 'refs/tags/')
+        # if: startsWith(github.ref, 'refs/tags/')
         uses: actions/upload-artifact@v4
         with:
           name: mupdf-linux-${{ matrix.arch }}
@@ -170,7 +202,7 @@ jobs:
 
 
   release-packages:
-    if: startsWith(github.ref, 'refs/tags/')
+    # if: startsWith(github.ref, 'refs/tags/')
     needs: [ windows-x64, linux ]
     runs-on: ubuntu-latest
     steps:
