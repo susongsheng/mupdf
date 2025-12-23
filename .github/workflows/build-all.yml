@@ -50,7 +50,7 @@ jobs:
           # platform/win32/x64/Release/*.lib
           # platform/win32/x64/Release/*.pdb
           path: |
-            platform/win32/x64/Release/*.dll
+            platform/win32/x64/Release/javaviewerlib64.dll
 
   linux:
     name: Linux (${{ matrix.arch }})
@@ -121,13 +121,13 @@ jobs:
       - name: Collect artifacts
         run: |
           mkdir -p dist/${{ matrix.arch }}
-          cp build/shared-release/*.so.27.0 dist/${{ matrix.arch }}/
+          cp build/shared-release/libmupdf.so.27.0 dist/${{ matrix.arch }}/
 
       - name: Upload Linux artifacts
         uses: actions/upload-artifact@v4
         with:
           name: mupdf-linux-${{ matrix.arch }}
-          path: dist/${{ matrix.arch }}/*.so.27.0
+          path: dist/${{ matrix.arch }}/libmupdf.so.27.0
 
 ################################
 # Linux x64 (native)
