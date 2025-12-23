@@ -64,17 +64,15 @@ jobs:
 
   linux:
     name: Linux (${{ matrix.arch }})
-    runs-on: ubuntu-22.04
+    runs-on: ${{ matrix.arch }}
 
     strategy:
       fail-fast: false
       matrix:
-        arch:
-          - x86_64
-          - armv7
-          - arm64
-          - loongarch64
-
+        arch: 
+          - ubuntu-24.04
+          - ubuntu-24.04-arm
+        
     steps:
       - uses: actions/checkout@v4
         with:
@@ -105,27 +103,42 @@ jobs:
             libcurl4-openssl-dev
 
       # ===== 架构区分 =====
-      - name: Set toolchain
-        run: |
-          case "${{ matrix.arch }}" in
-            x86_64)
-              echo "CC=gcc" >> $GITHUB_ENV
-              echo "CXX=g++" >> $GITHUB_ENV
-              ;;
-            armv7)
-              sudo apt-get install -y gcc-arm-linux-gnueabihf
-              echo "CC=arm-linux-gnueabihf-gcc" >> $GITHUB_ENV
-              ;;
-            arm64)
-              sudo apt-get install -y gcc-aarch64-linux-gnu
-              echo "CC=aarch64-linux-gnu-gcc" >> $GITHUB_ENV
-              ;;
-            loongarch64)
-              sudo apt-get install -y gcc-loongarch64-linux-gnu
-              echo "CC=loongarch64-linux-gnu-gcc" >> $GITHUB_ENV
-              ;;
-          esac
+      # - name: Set toolchain
+      #   run: |
+      #     case "${{ matrix.arch }}" in
+      #       x86_64)
+      #         echo "CC=gcc" >> $GITHUB_ENV
+      #         echo "CXX=g++" >> $GITHUB_ENV
+      #         ;;
+      #       armv7)
+      #         sudo apt-get install -y gcc-arm-linux-gnueabihf
+      #         echo "CC=arm-linux-gnueabihf-gcc" >> $GITHUB_ENV
+      #         ;;
+      #       arm64)
+      #         sudo apt-get install -y gcc-aarch64-linux-gnu
+      #         echo "CC=aarch64-linux-gnu-gcc" >> $GITHUB_ENV
+      #         ;;
+      #       loongarch64)
+      #         sudo apt-get install -y gcc-loongarch64-linux-gnu
+      #         echo "CC=loongarch64-linux-gnu-gcc" >> $GITHUB_ENV
+      #         ;;
+      #     esac
 
+      # - name: Build MuPDF (.so)
+      #   run: |
+      #     echo pwd
+      #     echo $(pwd)
+      #     echo build/shared-release
+      #     echo $(ls build/shared-release)
+      #     make clean
+      #     make shared \
+      #       CC=${CC} \
+      #       build=release \
+      #       HAVE_X11=no \
+      #       HAVE_OPENSSL=no \
+      #       HAVE_GLFW=no \
+      #       HAVE_GLUT=no \
+      #       HAVE_CURL=no
       - name: Build MuPDF (.so)
         run: |
           echo pwd
@@ -133,11 +146,9 @@ jobs:
           echo build/shared-release
           echo $(ls build/shared-release)
           make clean
-          make shared \
-            CC=${CC} \
+          make \
             build=release \
             HAVE_X11=no \
-            HAVE_OPENSSL=no \
             HAVE_GLFW=no \
             HAVE_GLUT=no \
             HAVE_CURL=no
@@ -149,7 +160,7 @@ jobs:
           echo $(pwd)
           echo build/shared-release
           echo $(ls -l build/shared-release)
-          tar czf dist/${{ matrix.arch }}/mupdf-linux-${{ matrix.arch }}.tar build/shared-release/
+          tar czf dist/${{ matrix.arch }}/mupdf-linux-${{ matrix.arch }}.tar build/
 
       - name: Upload Linux artifacts
         uses: actions/upload-artifact@v4
