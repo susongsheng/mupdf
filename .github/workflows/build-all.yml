@@ -30,6 +30,7 @@ jobs:
             /p:Configuration=Release ^
             /p:Platform=x64 ^
             /m
+          dir .\platform\win32\x64\Release\
 
       #- name: Package Windows artifacts
       #  shell: cmd
@@ -136,14 +137,14 @@ jobs:
           echo pwd
           echo $(pwd)
           echo build/shared-release
-          echo $(ls build/shared-release)
-          cp build/shared-release/libmupdf.so.27.0 dist/${{ matrix.arch }}/
+          echo $(ll build/shared-release)
+          cp build/shared-release/libmupdf.so dist/${{ matrix.arch }}/
 
       - name: Upload Linux artifacts
         uses: actions/upload-artifact@v4
         with:
           name: mupdf-linux-${{ matrix.arch }}
-          path: dist/${{ matrix.arch }}/libmupdf.so.27.0
+          path: dist/${{ matrix.arch }}/libmupdf.so
 
 ################################
 # Linux x64 (native)
