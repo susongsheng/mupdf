@@ -2,7 +2,7 @@ name: Build MuPDF All Platforms
 
 on:
   push:
-    branches: [ "1.27.x" ]
+    branches: [ "master" ]
   workflow_dispatch:
 
 env:
@@ -47,10 +47,10 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: mupdf-windows-x64
+          # platform/win32/x64/Release/*.lib
+          # platform/win32/x64/Release/*.pdb
           path: |
             platform/win32/x64/Release/*.dll
-            platform/win32/x64/Release/*.lib
-            platform/win32/x64/Release/*.pdb
 
   linux:
     name: Linux (${{ matrix.arch }})
@@ -82,7 +82,8 @@ jobs:
             libopenjp2-7-dev \
             libjbig2dec0-dev \
             zlib1g-dev \
-            gcc-multilib
+            gcc-multilib \
+            unzip
 
       # ===== 架构区分 =====
       - name: Set toolchain
@@ -113,18 +114,20 @@ jobs:
             CC=${CC} \
             build=release \
             HAVE_X11=no \
-            HAVE_GLFW=no
+            HAVE_GLFW=no \
+            HAVE_GLUT=no \
+            HAVE_CURL=no
 
       - name: Collect artifacts
         run: |
           mkdir -p dist/${{ matrix.arch }}
-          cp build/shared-release/*.so dist/${{ matrix.arch }}/
+          cp build/shared-release/*.so.27.0 dist/${{ matrix.arch }}/
 
       - name: Upload Linux artifacts
         uses: actions/upload-artifact@v4
         with:
           name: mupdf-linux-${{ matrix.arch }}
-          path: dist/${{ matrix.arch }}/*.so
+          path: dist/${{ matrix.arch }}/*.so.27.0
 
 ################################
 # Linux x64 (native)
