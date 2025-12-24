@@ -193,6 +193,8 @@ jobs:
           echo $(pwd)
           echo build
           echo $(ls -l build)
+          echo build/release
+          echo $(ls -l build/release)
           echo build/shared-release
           echo $(ls -l build/shared-release)
           tar czf dist/${{ matrix.arch }}/mupdf-linux-${{ matrix.arch }}.tar build/
@@ -202,7 +204,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: mupdf-linux-${{ matrix.arch }}
-          path: dist/${{ matrix.arch }}/mupdf-linux-${{ matrix.arch }}.tar.gz
+          path: dist/${{ matrix.arch }}/mupdf-linux-${{ matrix.arch }}.tar
 
 
   release-packages:
@@ -213,16 +215,16 @@ jobs:
     steps:
       - name: download all artifacts
         uses: actions/download-artifact@v4
-        # with:
-        #   pattern: |
-        #     *.{rpm,deb}
-        #   merge-multiple: true
+        with:
+          pattern: |
+            *.{tar,zip}
+          merge-multiple: true
       - name: upload artifacts to release
         uses: softprops/action-gh-release@v2
-      # with:
-      #   files: |
-      #     *.rpm
-      #     *.deb
+        with:
+          files: |
+            *.tar
+            *.zip
 
 ################################
 # Linux x64 (native)
