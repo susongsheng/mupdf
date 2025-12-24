@@ -376,13 +376,13 @@ MUTOOL_SRC += $(sort $(wildcard source/tools/pdf*.c))
 MUTOOL_OBJ := $(MUTOOL_SRC:%.c=$(OUT)/%.o)
 MUTOOL_EXE := $(OUT)/mutool
 $(MUTOOL_EXE) : $(MUTOOL_OBJ) $(MUPDF_LIB) $(THIRD_LIB) $(PKCS7_LIB) $(THREAD_LIB)
-	# $(LINK_CMD) $(THIRD_LIBS) $(THREADING_LIBS) $(LIBCRYPTO_LIBS)
+	$(LINK_CMD) $(THIRD_LIBS) $(THREADING_LIBS) $(LIBCRYPTO_LIBS)
 TOOL_APPS += $(MUTOOL_EXE)
 
 MURASTER_OBJ := $(OUT)/source/tools/muraster.o
 MURASTER_EXE := $(OUT)/muraster
 $(MURASTER_EXE) : $(MURASTER_OBJ) $(MUPDF_LIB) $(THIRD_LIB) $(PKCS7_LIB) $(THREAD_LIB)
-	# $(LINK_CMD) $(THIRD_LIBS) $(THREADING_LIBS) $(LIBCRYPTO_LIBS)
+	$(LINK_CMD) $(THIRD_LIBS) $(THREADING_LIBS) $(LIBCRYPTO_LIBS)
 EXTRA_TOOL_APPS += $(MURASTER_EXE)
 
 ifeq ($(HAVE_GLUT),yes)
@@ -390,7 +390,7 @@ ifeq ($(HAVE_GLUT),yes)
   MUVIEW_GLUT_OBJ := $(MUVIEW_GLUT_SRC:%.c=$(OUT)/%.o)
   MUVIEW_GLUT_EXE := $(OUT)/mupdf-gl
   $(MUVIEW_GLUT_EXE) : $(MUVIEW_GLUT_OBJ) $(MUPDF_LIB) $(THIRD_LIB) $(THIRD_GLUT_LIB) $(PKCS7_LIB)
-	# $(LINK_CMD) $(THIRD_LIBS) $(LIBCRYPTO_LIBS) $(THIRD_GLUT_LIBS)
+	$(LINK_CMD) $(THIRD_LIBS) $(LIBCRYPTO_LIBS) $(THIRD_GLUT_LIBS)
   VIEW_APPS += $(MUVIEW_GLUT_EXE)
 endif
 
@@ -400,7 +400,7 @@ ifeq ($(HAVE_X11),yes)
   MUVIEW_X11_OBJ += $(OUT)/platform/x11/x11_main.o
   MUVIEW_X11_OBJ += $(OUT)/platform/x11/x11_image.o
   $(MUVIEW_X11_EXE) : $(MUVIEW_X11_OBJ) $(MUPDF_LIB) $(THIRD_LIB) $(PKCS7_LIB)
-	# $(LINK_CMD) $(THIRD_LIBS) $(X11_LIBS) $(LIBCRYPTO_LIBS)
+	$(LINK_CMD) $(THIRD_LIBS) $(X11_LIBS) $(LIBCRYPTO_LIBS)
   VIEW_APPS += $(MUVIEW_X11_EXE)
 endif
 
@@ -414,7 +414,7 @@ ifeq ($(HAVE_PTHREAD),yes)
   MUVIEW_X11_CURL_OBJ += $(OUT)/platform/x11/curl/curl_stream.o
   MUVIEW_X11_CURL_OBJ += $(OUT)/platform/x11/curl/prog_stream.o
   $(MUVIEW_X11_CURL_EXE) : $(MUVIEW_X11_CURL_OBJ) $(MUPDF_LIB) $(THIRD_LIB) $(PKCS7_LIB) $(CURL_LIB)
-	# $(LINK_CMD) $(THIRD_LIBS) $(X11_LIBS) $(LIBCRYPTO_LIBS) $(CURL_LIBS) $(PTHREAD_LIBS)
+	$(LINK_CMD) $(THIRD_LIBS) $(X11_LIBS) $(LIBCRYPTO_LIBS) $(CURL_LIBS) $(PTHREAD_LIBS)
   EXTRA_VIEW_APPS += $(MUVIEW_X11_CURL_EXE)
 endif
 endif
@@ -440,13 +440,13 @@ endif
 examples: $(OUT)/example $(OUT)/multi-threaded $(OUT)/storytest $(OUT)/searchtest
 
 $(OUT)/example: docs/examples/example.c $(MUPDF_LIB) $(THIRD_LIB)
-	# $(LINK_CMD) $(CFLAGS) $(THIRD_LIBS)
+	$(LINK_CMD) $(CFLAGS) $(THIRD_LIBS)
 $(OUT)/multi-threaded: docs/examples/multi-threaded.c $(MUPDF_LIB) $(THIRD_LIB)
-	# $(LINK_CMD) $(CFLAGS) $(THIRD_LIBS) -lpthread
+	$(LINK_CMD) $(CFLAGS) $(THIRD_LIBS) -lpthread
 $(OUT)/storytest: docs/examples/storytest.c $(MUPDF_LIB) $(THIRD_LIB)
-	# $(LINK_CMD) $(CFLAGS) $(THIRD_LIBS)
+	$(LINK_CMD) $(CFLAGS) $(THIRD_LIBS)
 $(OUT)/searchtest: docs/examples/searchtest.c $(MUPDF_LIB) $(THIRD_LIB)
-	# $(LINK_CMD) $(CFLAGS) $(THIRD_LIBS)
+	$(LINK_CMD) $(CFLAGS) $(THIRD_LIBS)
 
 # --- Format man pages ---
 
