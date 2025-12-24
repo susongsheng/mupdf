@@ -1,0 +1,352 @@
+name: Build MuPDF All Platforms
+
+on:
+  push:
+    branches: [ "master" ]
+  workflow_dispatch:
+
+env:
+  BUILD_TYPE: release
+
+################################
+# Windows x64
+################################
+jobs:
+  # build-windows-x64:
+  #   runs-on: windows-latest
+  #   env:
+  #     VS_SOLUTION: platform\win32\mupdf.sln
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #       with:
+  #         submodules: recursive
+
+  #     - uses: microsoft/setup-msbuild@v2
+
+  #     - name: Build MuPDF (Windows x64)
+  #       shell: cmd
+  #       # 编译期
+  #       # /Ox          # 最大优化
+  #       # /Gy          # 函数级分段
+  #       # /GL          # 全程序优化（LTCG 前置）
+  #       # 链接期
+  #       # /LTCG
+  #       # /OPT:REF    # 删除未引用函数
+  #       # /OPT:ICF    # 合并相同函数
+  #       # 关闭 RTTI / 异常
+  #       # /GR-   # RTTI off
+  #       # /EHs-  # 异常处理 off
+  #       # DLL 输出优化
+  #       # /INCREMENTAL:NO
+  #       # /DEBUG:NONE
+  #       run: |
+  #         msbuild %VS_SOLUTION% ^
+  #         /p:Configuration=Release ^
+  #         /p:Platform=x64 ^
+  #         /p:CLCompile.AdditionalOptions="/Ox /Gy /GL /GR- /EHs-" ^
+  #         /p:Link.AdditionalOptions="/LTCG /OPT:REF /OPT:ICF /INCREMENTAL:NO /DEBUG:NONE" ^
+  #         /p:PreprocessorDefinitions="HAVE_OPENSSL=0;HAVE_XPS=0;HAVE_EPUB=0;HAVE_CBZ=0;HAVE_SVG=0;HAVE_JS=0;HAVE_TESSERACT=0;HAVE_ICC=0" ^
+  #         /m
+          
+  #         del platform\win32\x64\Release\*.pdb
+          
+  #     # llvm-strip --strip-unneeded mupdf.dll
+
+      
+  #     #- name: Package Windows artifacts
+  #     #  shell: cmd
+  #       #copy platform\win32\x64\Release\*.lib dist\
+  #     #  run: |
+  #     #    mkdir dist
+  #     #    copy platform\win32\x64\Release\*.exe dist\
+  #     #    copy platform\win32\x64\Release\*.dll dist\
+  #     #    tar -a -c -f mupdf-windows-x64.zip dist
+
+  #     # - uses: actions/upload-artifact@v4
+  #     #   with:
+  #     #     name: mupdf-windows-x64
+  #     #     path: mupdf-windows-x64.zip
+
+  #     - name: Package Windows artifacts
+  #       shell: cmd
+  #         #copy platform\win32\x64\Release\*.lib dist\
+  #       run: |
+  #        mkdir dist
+  #        copy platform\win32\x64\Release\*.exe dist\
+  #        copy platform\win32\x64\Release\*.dll dist\
+  #        tar -a -c -f mupdf-windows-x64.zip dist
+      
+  #     - uses: actions/upload-artifact@v4
+  #       with:
+  #         name: mupdf-windows-x64
+  #         # platform/win32/x64/Release/*.lib
+  #         # platform/win32/x64/Release/*.pdb
+  #         path: mupdf-windows-x64.zip
+
+  linux:
+    name: Linux (${{ matrix.arch }})
+    runs-on: ${{ matrix.arch }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: 
+          - ubuntu-24.04
+          - ubuntu-24.04-arm
+        
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            git \
+            python3 \
+            pkg-config \
+            libfreetype6-dev \
+            libharfbuzz-dev \
+            libjpeg-dev \
+            libopenjp2-7-dev \
+            libjbig2dec0-dev \
+            zlib1g-dev \
+            unzip \
+            python3 \
+            cmake \
+            libx11-dev \
+            libgl-dev \
+            libglu1-mesa-dev \
+            libpng-dev \
+            libcurl4-openssl-dev
+      
+      # ===== 架构区分 =====
+      # - name: Set toolchain
+      #   run: |
+      #     case "${{ matrix.arch }}" in
+      #       x86_64)
+      #         echo "CC=gcc" >> $GITHUB_ENV
+      #         echo "CXX=g++" >> $GITHUB_ENV
+      #         ;;
+      #       armv7)
+      #         sudo apt-get install -y gcc-arm-linux-gnueabihf
+      #         echo "CC=arm-linux-gnueabihf-gcc" >> $GITHUB_ENV
+      #         ;;
+      #       arm64)
+      #         sudo apt-get install -y gcc-aarch64-linux-gnu
+      #         echo "CC=aarch64-linux-gnu-gcc" >> $GITHUB_ENV
+      #         ;;
+      #       loongarch64)
+      #         sudo apt-get install -y gcc-loongarch64-linux-gnu
+      #         echo "CC=loongarch64-linux-gnu-gcc" >> $GITHUB_ENV
+      #         ;;
+      #     esac
+
+      # - name: Build MuPDF (.so)
+      #   run: |
+      #     echo pwd
+      #     echo $(pwd)
+      #     echo build/shared-release
+      #     echo $(ls build/shared-release)
+      #     make clean
+      #     make shared \
+      #       CC=${CC} \
+      #       build=release \
+      #       HAVE_X11=no \
+      #       HAVE_OPENSSL=no \
+      #       HAVE_GLFW=no \
+      #       HAVE_GLUT=no \
+      #       HAVE_CURL=no
+      - name: Build MuPDF (.so)
+        run: |
+          echo pwd
+          echo $(pwd)
+          echo build/shared-release
+          echo $(ls build/shared-release)
+          make clean
+          make \
+            build=release \
+            XCFLAGS="-Os -flto" \
+            XLDFLAGS="-flto" \
+            HAVE_X11=no \
+            HAVE_GLFW=no \
+            HAVE_GLUT=no \
+            HAVE_CURL=no \
+            HAVE_TESSERACT=no \
+            HAVE_JS=no \
+            HAVE_SVG=no \
+            HAVE_EPUB=no \
+            HAVE_XPS=no \
+            HAVE_CBZ=no \
+            HAVE_IMG=no \
+            HAVE_ICC=no
+
+          strip --strip-unneeded libmupdf.so.27.0
+
+      - name: Collect artifacts
+        run: |
+          mkdir -p dist/${{ matrix.arch }}
+          echo pwd
+          echo $(pwd)
+          echo build/shared-release
+          echo $(ls -l build/shared-release)
+          tar czf dist/${{ matrix.arch }}/mupdf-linux-${{ matrix.arch }}.tar build/
+
+      - name: Upload Linux artifacts
+        # if: startsWith(github.ref, 'refs/tags/')
+        uses: actions/upload-artifact@v4
+        with:
+          name: mupdf-linux-${{ matrix.arch }}
+          path: dist/${{ matrix.arch }}/mupdf-linux-${{ matrix.arch }}.tar.gz
+
+
+  release-packages:
+    # if: startsWith(github.ref, 'refs/tags/')
+    # needs: [ windows-x64, linux ]
+    needs: [ linux ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: download all artifacts
+        uses: actions/download-artifact@v4
+        # with:
+        #   pattern: |
+        #     *.{rpm,deb}
+        #   merge-multiple: true
+      - name: upload artifacts to release
+        uses: softprops/action-gh-release@v2
+      # with:
+      #   files: |
+      #     *.rpm
+      #     *.deb
+
+################################
+# Linux x64 (native)
+################################
+  # linux-x64:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #       with:
+  #         submodules: recursive
+
+  #     - name: Build MuPDF (Linux x64)
+  #     #build-essential git python3 cmake pkg-config libjpeg-dev libopenjp2-7-dev libfreetype6-dev libharfbuzz-dev libjbig2dec0-dev libx11-dev libgl-dev libglu1-mesa-dev libpng-dev libcurl4-openssl-dev zlib1g-dev
+  #       run: |
+  #         sudo apt-get update
+  #         sudo apt-get install -y libx11-dev libxinerama-dev
+  #         make shared=yes build=release
+
+  #     - name: Package
+  #       run: |
+  #         mkdir dist
+  #         cp build/release/*.so dist/
+  #         tar czf mupdf-linux-x64.tar.gz dist
+
+  #     - uses: actions/upload-artifact@v3
+  #       with:
+  #         name: mupdf-linux-x64
+  #         path: mupdf-linux-x64.tar.gz
+
+################################
+# Linux ARMv7
+################################
+  # linux-armv7:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #       with:
+  #         submodules: recursive
+
+  #     - name: Build ARMv7 via Docker
+  #       run: |
+  #         docker run --rm -v $PWD:/src arm32v7/ubuntu:22.04 bash -c "
+  #           apt update &&
+  #           apt install -y build-essential libx11-dev &&
+  #           cd /src &&
+  #           make shared=yes build=release
+  #         "
+  #         mkdir dist
+  #         cp build/release/*.so dist/
+  #         tar czf mupdf-linux-armv7.tar.gz dist
+
+  #     - uses: actions/upload-artifact@v3
+  #       with:
+  #         name: mupdf-linux-armv7
+  #         path: mupdf-linux-armv7.tar.gz
+
+################################
+# Linux ARM64 (aarch64)
+################################
+  # linux-arm64:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #       with:
+  #         submodules: recursive
+
+  #     - name: Build ARM64 via Docker
+  #       run: |
+  #         docker run --rm -v $PWD:/src arm64v8/ubuntu:22.04 bash -c "
+  #           apt update &&
+  #           apt install -y build-essential libx11-dev &&
+  #           cd /src &&
+  #           make shared=yes build=release
+  #         "
+  #         mkdir dist
+  #         cp build/release/*.so dist/
+  #         tar czf mupdf-linux-arm64.tar.gz dist
+
+  #     - uses: actions/upload-artifact@v3
+  #       with:
+  #         name: mupdf-linux-arm64
+  #         path: mupdf-linux-arm64.tar.gz
+
+################################
+# Linux LoongArch64
+################################
+  # linux-loongarch64:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #       with:
+  #         submodules: recursive
+
+  #     - name: Build LoongArch64 via Docker
+  #       run: |
+  #         docker run --rm -v $PWD:/src loongarch64/ubuntu:22.04 bash -c "
+  #           apt update &&
+  #           apt install -y build-essential libx11-dev &&
+  #           cd /src &&
+  #           make shared=yes build=release
+  #         "
+  #         mkdir dist
+  #         cp build/release/*.so dist/
+  #         tar czf mupdf-linux-loongarch64.tar.gz dist
+
+  #     - uses: actions/upload-artifact@v3
+  #       with:
+  #         name: mupdf-linux-loongarch64
+  #         path: mupdf-linux-loongarch64.tar.gz
+
+################################
+# Upload to GitHub Release
+################################
+  # upload-release:
+  #   needs:
+  #     - windows-x64
+  #     - linux-x64
+  #     - linux-armv7
+  #     - linux-arm64
+  #     - linux-loongarch64
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/download-artifact@v3
+
+  #     - name: Upload Release Assets
+  #       uses: sekwah41/upload-release-assets@v1.1.0
+  #       with:
+  #         upload_url: ${{ github.event.release.upload_url }}
+  #         asset_path: mupdf-windows-x64.zip
+  #         asset_name: mupdf-windows-x64.zip
