@@ -166,30 +166,33 @@ jobs:
           echo build/shared-release
           echo $(ls build/shared-release)
           make clean
-          make \
-            build=release \
-            XCFLAGS="-Os -flto" \
-            XLDFLAGS="-flto" \
-            HAVE_X11=no \
-            HAVE_GLFW=no \
-            HAVE_GLUT=no \
-            HAVE_CURL=no \
-            HAVE_TESSERACT=no \
-            HAVE_JS=no \
-            HAVE_SVG=no \
-            HAVE_EPUB=no \
-            HAVE_XPS=no \
-            HAVE_CBZ=no \
-            HAVE_IMG=no \
-            HAVE_ICC=no
+          make HAVE_GLUT=no
+        # \
+        #   build=release \
+        #   XCFLAGS="-Os -flto" \
+        #   XLDFLAGS="-flto" \
+        #   HAVE_X11=no \
+        #   HAVE_GLFW=no \
+        #   HAVE_GLUT=no \
+        #   HAVE_CURL=no \
+        #   HAVE_TESSERACT=no \
+        #   HAVE_JS=no \
+        #   HAVE_SVG=no \
+        #   HAVE_EPUB=no \
+        #   HAVE_XPS=no \
+        #   HAVE_CBZ=no \
+        #   HAVE_IMG=no \
+        #   HAVE_ICC=no
 
-          strip --strip-unneeded libmupdf.so.27.0
+        #strip --strip-unneeded libmupdf.so.27.0
 
       - name: Collect artifacts
         run: |
           mkdir -p dist/${{ matrix.arch }}
           echo pwd
           echo $(pwd)
+          echo build
+          echo $(ls -l build)
           echo build/shared-release
           echo $(ls -l build/shared-release)
           tar czf dist/${{ matrix.arch }}/mupdf-linux-${{ matrix.arch }}.tar build/
