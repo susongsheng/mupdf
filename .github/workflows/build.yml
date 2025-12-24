@@ -193,10 +193,13 @@ jobs:
           echo $(pwd)
           echo build
           echo $(ls -l build)
-          echo build/release
+          echo ls build/release
           echo $(ls -l build/release)
-          echo build/shared-release
+          echo ls build/shared-release
           echo $(ls -l build/shared-release)
+          
+          echo ls /usr/local/lib/libmupdf.so.27.0
+          echo $(ls /usr/local/lib/libmupdf.so.27.0)
           tar czf dist/${{ matrix.arch }}/mupdf-linux-${{ matrix.arch }}.tar build/
 
       - name: Upload Linux artifacts
