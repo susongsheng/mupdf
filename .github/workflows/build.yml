@@ -166,7 +166,7 @@ jobs:
           echo build/shared-release
           echo $(ls build/shared-release)
           make clean
-          make HAVE_GLUT=no
+          make shared=yes HAVE_GLUT=no
         # \
         #   build=release \
         #   XCFLAGS="-Os -flto" \
